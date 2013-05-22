@@ -28,9 +28,7 @@
   function addListeners() {
     document.addEventListener("keydown", 
       function(e) {
-        if (document.activeElement.tagName == "INPUT" || document.activeElement.tagName == "TEXTAREA") {
-          return;
-        }
+        if (isInput()) { return; }
         
         switch (e.keyCode) {
           case KEYS.SPACE:
@@ -51,9 +49,7 @@
 
     document.addEventListener("keyup", 
       function(e) {
-        if (document.activeElement.tagName == "INPUT" || document.activeElement.tagName == "TEXTAREA") {
-          return;
-        }
+        if (isInput()) { return; }
         
         switch (e.keyCode) {
           case KEYS.SHIFT:
@@ -65,6 +61,19 @@
         }
       }
     );
+  }
+  
+  function isInput() {
+    debugLog("has role = " + document.activeElement.hasAttribute("role"));
+    debugLog("role value = " + document.activeElement.getAttribute("role"));
+    
+    if (document.activeElement.tagName == "INPUT" || 
+        document.activeElement.tagName == "TEXTAREA" || 
+        (document.activeElement.hasAttribute("role") && document.activeElement.getAttribute("role") == "textbox")) {
+      return true;
+    }
+    
+    return false;
   }
   
   function pageBottom() {
