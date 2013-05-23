@@ -24,3 +24,7 @@ var DefaultNextWords = [
   "次を",
   "次ページ",
 ];
+
+var DefaultExcludedUrls = [
+  "http://www.google.com/intl/en/options/",
+];

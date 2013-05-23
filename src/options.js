@@ -1,96 +1,100 @@
-function save_options() {
-  var nextwordsTag = document.getElementById("nextwords");
-  var nexts = nextwordsTag.children;
-  var nexts_num = nexts.length;
-  var nextwords = "";
+function saveAll() {
+  saveElements("nextwords");
+  saveElements("excludedUrls");
   
-  for (var i = 0; i < nexts_num; i++) {
-    if (nexts[i].firstChild.value == "") {
-      continue;
+  history.go(0);
+}
+
+function saveElements(elementType) {
+  var fields = document.getElementById(elementType).children;
+  var str = "";
+  
+  for (var i = 0; i < fields.length; i++) {
+    if (fields[i].firstChild.value != "") {
+      str += fields[i].firstChild.value + "\n";
     }
-    
-    nextwords += nexts[i].firstChild.value + "\n";
   }
   
-  localStorage["nextwords"] = nextwords;
+  localStorage[elementType] = str;
+}
+
+function saveDebug() {
   if (document.getElementById("debug").checked) {
     localStorage["isDebugEnabled"] = "true";
   } else {
     localStorage["isDebugEnabled"] = "false";
   }
-  
-  history.go(0);
 }
 
-function reset_options() {
+function resetAll() {
   if(confirm("Reset all optoins?")) {
-    load_defaults();
+    loadDefaultNextWords();
+    loadDefaultExcludedUrls();
+    localStorage["isDebugEnabled"] = "false";
+    
     history.go(0);
   }
 }
 
-function restore_options() {
+function restoreAll() {
   if (localStorage["isDebugEnabled"] != null && localStorage["isDebugEnabled"] == "true") {
     document.getElementById("debug").checked = true;
   }
-
-  if (localStorage["nextwords"] == null) {
-    empty_option();
-    return;
-  }
   
-  var keywords = localStorage["nextwords"].trim().split("\n");
-  var stored_keywords_num = keywords.length;
+  restore("nextwords", "nextword");
+  restore("excludedUrls", "excludedUrl");
+}
   
-  if (stored_keywords_num == 0) {
-    empty_option();
-    return;
-  }
+function restore(elementType, elementInstance) {
+  if (localStorage[elementType]) {
+    var keywords = localStorage[elementType].trim().split("\n");
   
-  for (var i = 0; i < stored_keywords_num; i++) {
-    if (keywords[i] == null || keywords[i] == "") {
-      continue;
+    for (var i = 0; i < keywords.length; i++) {
+      if (keywords[i] != null && keywords[i] != "") {
+        addElement(elementType, elementInstance, keywords[i]);
+      }
     }
-
-    add_option(keywords[i]);
   }
+  
+  addElement(elementType, elementInstance, "");
 }
 
-function empty_option() {
-  var nextwords = document.getElementById("nextwords");
-  var nextword = document.createElement("div");
-  
-  nextword.id = "nextword"
-  
-  var nexttext = document.createElement("input");
-  
-  nexttext.id = "nexttext";
-  nextword.appendChild(nexttext);
-  nextwords.appendChild(nextword);
+function addWord() {
+  addElement("nextwords", "nextword", "");
 }
 
-function add_option(value) {
-  var nextwords = document.getElementById("nextwords");
-  var nextword = document.createElement("div");
+function addExcludedUrl() {
+  addElement("excludedUrls", "excludedUrl", "");
+}
+
+function addElement(elementType, elementInstance, elementValue) {
+  var elements = document.getElementById(elementType);
+  var element = document.createElement("div");
   
-  nextword.class = "nextword";
-  nextword.setAttribute("class", "nextword");
+  element.class = elementInstance;
+  //element.setAttribute("class", elementInstance);
   
-  var nexttext = document.createElement("input");
+  var elementText = document.createElement("input");
   
-  nexttext.class = "nexttext";
-  if(isString(value)) {
-    nexttext.value = value;
+  elementText.class = elementInstance;
+  if(isString(elementValue)) {
+    elementText.value = elementValue;
   }
-  nextword.appendChild(nexttext);
-  nextwords.appendChild(nextword);
+  element.appendChild(elementText);
+  elements.appendChild(element);
 }
 
 function isString(o) {
-    return typeof o == "string" || (typeof o == "object" && o.constructor === String);
+  return typeof o == "string" || (typeof o == "object" && o.constructor === String);
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);
-document.querySelector('#save').addEventListener('click', save_options);
-document.querySelector('#addword').addEventListener('click', add_option);
-document.querySelector('#reset').addEventListener('click', reset_options);
+document.addEventListener('DOMContentLoaded', restoreAll);
+
+document.querySelector('#addword').addEventListener('click', addWord);
+document.querySelector('#save').addEventListener('click', saveAll);
+
+document.querySelector('#addExcludedUrl').addEventListener('click', addExcludedUrl);
+document.querySelector('#save').addEventListener('click', saveAll);
+
+document.querySelector('#debug').addEventListener('click', saveDebug);
+document.querySelector('#reset').addEventListener('click', resetAll);

@@ -6,24 +6,37 @@
     SHIFT : 16
   };
 
-  var nextwords = [];
   var isDebugEnabled = "false";
+  var nextwords = [];
+  var excludedUrls = [];
   
   chrome.extension.sendMessage({ name: "isDebugEnabled" }, 
     function(response) {
       isDebugEnabled = response.isDebugEnabled;
+      
+      getNextWords();
     }
   );
 
-  chrome.extension.sendMessage({ name: "getNextWords" }, 
-    function(response) {
-      str = response.nextwords.trim();
-      
-      nextwords = response.nextwords.trim().split("\n");
-      
-      addListeners();
-    }
-  );
+  function getNextWords() {
+    chrome.extension.sendMessage({ name: "getNextWords" }, 
+      function(response) {
+        nextwords = response.nextwords.trim().split("\n");
+        
+        getExcludedUrls();
+      }
+    );
+  }
+  
+  function getExcludedUrls() {
+    chrome.extension.sendMessage({ name: "getExcludedUrls" }, 
+      function(response) {
+        excludedUrls = response.excludedUrls.trim().split("\n");
+        
+        addListeners();
+      }
+    );
+  }
   
   function addListeners() {
     document.addEventListener("keydown", 
@@ -32,16 +45,13 @@
         
         switch (e.keyCode) {
           case KEYS.SPACE:
-            if (!shiftKeyPress && pageBottom()) {
+            if (!shiftKeyPress && isPageBottom()) {
               loadNext();
             }
             break;
             
           case KEYS.SHIFT:
             shiftKeyPress = true;
-            break;
-            
-          default:
             break;
         }
       }
@@ -55,25 +65,19 @@
           case KEYS.SHIFT:
             shiftKeyPress = false;
             break;
-            
-          default:
-            break;
         }
       }
     );
   }
   
   function isInput() {
-    if (document.activeElement.tagName == "INPUT" || 
-        document.activeElement.tagName == "TEXTAREA" || 
-        (document.activeElement.hasAttribute("role") && document.activeElement.getAttribute("role") == "textbox")) {
-      return true;
-    }
-    
-    return false;
+    return 
+      document.activeElement.tagName == "INPUT" || 
+      document.activeElement.tagName == "TEXTAREA" || 
+      (document.activeElement.hasAttribute("role") && document.activeElement.getAttribute("role") == "textbox");
   }
   
-  function pageBottom() {
+  function isPageBottom() {
     var height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
     var scroll = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
     var clientHeight = Math.min(document.documentElement.clientHeight, document.body.clientHeight);
@@ -92,7 +96,7 @@
     
     tags = document.getElementsByTagName("a");
 
-    debugLog("All links on page:");
+    debugLog("All tags on page:");
     for (var i = 0; i < tags.length; i++) {
       debugLog("  " + tags[i].textContent + " = " + tags[i].getAttribute("href"));
     }
@@ -102,46 +106,45 @@
   }
   
   function hasRelNext(tags) {
-    for (var i = 0; i < tags.length; i++) {
-      var rel = tags[i].getAttribute("rel");
-    
-      if (rel != null && rel.toLowerCase() == "next") {
-        debugLog("Following: " + tags[i].textContent + " = " + tags[i].getAttribute("href"));
-        
-        document.location.href = tags[i].getAttribute("href");
-        return true;
-      }
-    }
-    
-    return false;
+    return hasCondition(tags, "rel=next", function(tag, word) { return tag.hasAttribute("rel") && tag.getAttribute("rel").toLowerCase() == "next" });
   }
   
   function hasNextWord(tags) {
     // check for exact match
     for (var i = 0; i < nextwords.length; i++) {
-      for (var j = 0; j < tags.length; j++) {
-        if (tags[j].textContent.toLowerCase() === nextwords[i].toLowerCase()) {
-          debugLog("Found: " + nextwords[i] + " Following: " + tags[j].textContent + ":" + tags[j].getAttribute("href"));
-          
-          document.location.href = tags[j].getAttribute("href");
-          return true;
-        }
+      if (hasCondition(tags, nextwords[i], function(tag, word) { return tag.textContent.toLowerCase() === word.toLowerCase(); })) {
+        return true;
       }
     }
     
     // check for any match
     for (var i = 0; i < nextwords.length; i++) {
-      for (var j = 0; j < tags.length; j++) {
-        if (tags[j].textContent.toLowerCase().indexOf(nextwords[i].toLowerCase()) >= 0) {
-          debugLog("Found: " + nextwords[i] + " Following: " + tags[j].textContent + ":" + tags[j].getAttribute("href"));
+      if (hasCondition(tags, nextwords[i], function(tag, word) { return tag.textContent.toLowerCase().indexOf(word.toLowerCase()) >= 0; })) {
+        return true;
+      }
+    }
+  }
+  
+  function hasCondition(tags, word, condition) {
+    for (var i = 0; i < tags.length; i++) {
+      if (condition(tags[i], word)) {
+        var url = tags[i].getAttribute("href");
+        
+        if(!isExcludedUrl(url)) {
+          debugLog("Found: " + word + " Following: " + tags[i].textContent + ":" + url);
           
-          document.location.href = tags[j].getAttribute("href");
-          return true;
+          return document.location.href = url;
         }
       }
     }
-    
-    return false;
+  }
+  
+  function isExcludedUrl(url) {
+    for (var i = 0; i < excludedUrls.length; i++) {
+      if (url == excludedUrls[i]) {
+        return true; 
+      }
+    }
   }
 
   function debugLog(text) {

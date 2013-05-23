@@ -15,8 +15,9 @@ h1 {
   width: 60%;
 }
 
-input {
+#wrap input {
   font-size: 14pt;
+  width: 100%;
 }
 
 #buttons {
