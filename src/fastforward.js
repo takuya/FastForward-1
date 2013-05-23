@@ -71,10 +71,11 @@
   }
   
   function isInput() {
-    return 
-      document.activeElement.tagName == "INPUT" || 
-      document.activeElement.tagName == "TEXTAREA" || 
-      (document.activeElement.hasAttribute("role") && document.activeElement.getAttribute("role") == "textbox");
+    if (document.activeElement.tagName == "INPUT" || 
+        document.activeElement.tagName == "TEXTAREA" || 
+        (document.activeElement.hasAttribute("role") && document.activeElement.getAttribute("role") == "textbox")) {
+      return true;
+    }
   }
   
   function isPageBottom() {
