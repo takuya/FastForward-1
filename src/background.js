@@ -14,7 +14,7 @@ chrome.extension.onMessage.addListener(
         loadDefaultExcludedUrls();
       }
       
-      sendResponse({ excludedUrls: localStorage["nextwords"] });
+      sendResponse({ excludedUrls: localStorage["excludedUrls"] });
       return;
     }
     
