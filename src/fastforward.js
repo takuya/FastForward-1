@@ -104,6 +104,7 @@
     
     if (hasRelNext(tags)) { return; }
     if (hasNextWord(tags)) { return; }
+    if (hasNextImg(tags)) { return; }
   }
   
   function hasRelNext(tags) {
@@ -121,6 +122,23 @@
     // check for any match
     for (var i = 0; i < nextwords.length; i++) {
       if (hasCondition(tags, nextwords[i], function(tag, word) { return tag.textContent.toLowerCase().indexOf(word.toLowerCase()) >= 0; })) {
+        return true;
+      }
+    }
+    
+    for (var i = 0; i < nextwords.length; i++) {
+      if (hasCondition(tags, nextwords[i], function(tag, word) { 
+        var imgs = tag.getElementsByTagName('img');
+        var img = imgs.length ? imgs[0] : null;
+        
+        if (img != null) { 
+          var alt = img.getAttribute('alt');
+          
+          if (alt != null) { 
+            return alt.toLowerCase() === word.toLowerCase(); 
+          }
+        }
+      })) {
         return true;
       }
     }
