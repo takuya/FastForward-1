@@ -23,3 +23,5 @@ LICENSE
 ====
 
 My modified codes license is GPLv3.
+
+Images are from Opera with thier license.
