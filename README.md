@@ -18,3 +18,8 @@ Original FastForward-Extension
 
 Opera like (FastForward)[http://www.achey.net/2013/05/22/fastforward/] feature in your chrome browser.
 
+
+LICENSE
+====
+
+My modified codes license is GPLv3.
