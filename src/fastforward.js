@@ -92,19 +92,50 @@
   }
   
   function loadNext() {
+    loadNext_Rel();
+    loadNext_Anchor();
+    loadNext_Button();
+  }
+  function loadNext_Button(){
+    var tags = document.getElementsByTagName("button");
+    if ( tags.length <1 ){
+      return ;
+    }
+    console.log( Array.from(document.getElementsByTagName("button")).map(e=>e.textContent.trim()) );
+    console.log( Array.from(document.getElementsByTagName("button")).find( tag=> {
+      return nextwords.find( e => e===tag.textContent.trim())
+    }) );
+  
+    var found = Array.from(document.getElementsByTagName("button")).find( tag=> {
+      return nextwords.find( e => e===tag.textContent.trim())
+    })
+    
+    if ( found ){
+      window.scroll(0, 0);
+      found.click();
+      return true;
+    }
+  }
+  
+  function loadNext_Rel(){
     var tags = document.getElementsByTagName("link");
     if (hasRelNext(tags)) { return; }
-    
+  }
+  
+  function loadNext_Anchor(){
     tags = document.getElementsByTagName("a");
-
+  
     debugLog("All tags on page:");
     for (var i = 0; i < tags.length; i++) {
       debugLog("  " + tags[i].textContent + " = " + tags[i].getAttribute("href"));
     }
-    
+  
     if (hasRelNext(tags)) { return; }
     if (hasNextWord(tags)) { return; }
     if (hasNextImg(tags)) { return; }
+  }
+  function hasNextImg(){
+    //dummy
   }
   
   function hasRelNext(tags) {
