@@ -1,25 +1,23 @@
 {
-  "name": "FastForward",
-  "version": "1.2.2",
-  "manifest_version": 2,
-  
-  "description": "Opera like FastForward feature in your chrome browser.",
-  
-  "content_scripts": [
-    {
+   "background": {
+      "page": "background.html"
+   },
+   "content_scripts": [ {
       "js": [ "fastforward.js" ],
       "matches": [ "http://*/*", "https://*/*" ],
       "run_at": "document_end"
-    }
-  ],
-  "permissions": [ "tabs", "http://*/*", "https://*/*" ],
-  "icons": {
-    "16": "16x16.png",
-    "48": "48x48.png",
-    "128": "128x128.png"
-  },
-  "options_page": "options.html",
-  "background": {
-    "page": "background.html"
-  }
+   } ],
+   "description": "Opera like FastForward feature in your chrome browser.",
+   "icons": {
+      "128": "128x128.png",
+      "16": "16x16.png",
+      "48": "48x48.png"
+   },
+   "key": "",
+   "manifest_version": 2,
+   "name": "FastForward-takuya",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "http://*/*", "https://*/*" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.2.3"
 }
