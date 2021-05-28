@@ -101,10 +101,6 @@
     if ( tags.length <1 ){
       return ;
     }
-    console.log( Array.from(document.getElementsByTagName("button")).map(e=>e.textContent.trim()) );
-    console.log( Array.from(document.getElementsByTagName("button")).find( tag=> {
-      return nextwords.find( e => e===tag.textContent.trim())
-    }) );
   
     var found = Array.from(document.getElementsByTagName("button")).find( tag=> {
       return nextwords.find( e => e===tag.textContent.trim())
